@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <title>BUBZ</title>
+  <style>
+    body{margin:0;height:0;}
+  </style>
+ </head>
+ <body>
+ <div id="main">
+ </div>
+  
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" type="text/javascript"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js" type="text/javascript"></script>
+  <script src="kinetic.min.js" type="text/javascript"></script>
+  <script>
+    var width = $(window).width();
+    var height = $(window).height();
+
+    var stage = new Kinetic.Stage({
+        container: 'main',
+        width: width,
+        height: height
+      });
+      
+      var layer = new Kinetic.Layer();
+
+      var bg = new Kinetic.Rect({
+        x: 0,
+        y: 0,
+        width: width,
+        height: height,
+        fill: '#000',
+        stroke: 'black',
+        strokeWidth: 4
+      });
+
+      // add the shape to the layer
+      layer.add(bg);
+
+
+      var colorlist = ["#87322C","#BF826B","#D9C6A3","#7D9C83","#4C706A"]
+
+      for (var i = 0; i < 50; i++){
+        var diff = i * 22;
+        var rect = new Kinetic.Rect({
+          x: 0,
+          y: 0,
+          offset: {x:-(diff/2),y:-(diff/2)},
+          width: width - diff,
+          height: height - diff,
+          fill: colorlist[i%5],
+          id: i,
+          name: "box"
+        })
+        layer.add(rect);
+      }
+      
+      // add the layer to the stage
+      stage.add(layer);
+      var iter = 1;
+      var diff = 0;
+      var anim = new Kinetic.Animation(function(frame) {
+        var time = frame.time,
+            timeDiff = frame.timeDiff,
+            frameRate = frame.frameRate,
+            boxes = layer.getChildren(),
+            tris = layer.get(".tri")
+            i = 0;
+        diff += timeDiff;
+          if(diff > 40){
+            _(boxes).each(function(b){
+                b.setFill(colorlist[(i+iter)%5]);
+                i++;
+            });
+            _(tris).each(function(t){
+                var current_scale = t.getRadius();
+                if(current_scale > width){
+                   t.remove();
+                } else {
+                    t.setRadius(current_scale + 70)
+                }
+            })
+
+            diff = 0
+            iter++;
+          } 
+        }, layer);
+        var audio    = new Audio();
+        audio.src = "MediumExplosion8-Bit.ogg"  
+        layer.on('mousedown',function(){
+           var tri = new Kinetic.RegularPolygon({
+             x:0,
+             y:0,
+             offset: {x:-(width/2),y:-(height/2)},
+             sides:3,
+             radius:30,
+             fill: "black",
+             name: "tri"
+           })
+           layer.add(tri);
+           stage.draw();
+           audio.load();
+           audio.play();
+        })
+
+
+  anim.start();
+
+  </script>
+ </body>
+</html>
